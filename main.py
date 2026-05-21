@@ -6,6 +6,7 @@ import os
 
 app = FastAPI()
 
+# ✅ FIX: Proper CORS for frontend access
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -24,14 +25,8 @@ def analyze(data: Req):
     response = client.chat.completions.create(
         model="gpt-4.1-mini",
         messages=[
-            {
-                "role": "system",
-                "content": "You are a health information assistant."
-            },
-            {
-                "role": "user",
-                "content": data.symptoms
-            }
+            {"role": "system", "content": "You are a medical assistant. Do not diagnose, only explain possibilities."},
+            {"role": "user", "content": data.symptoms}
         ]
     )
 
