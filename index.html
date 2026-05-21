@@ -4,42 +4,59 @@
   <title>Medivance Health AI</title>
   <style>
     body {
-      font-family: Arial;
+      font-family: Arial, sans-serif;
       padding: 20px;
       max-width: 700px;
       margin: auto;
+      background: #f9f9f9;
+    }
+
+    h1 {
+      text-align: center;
     }
 
     textarea {
       width: 100%;
-      height: 150px;
+      height: 160px;
       margin-top: 10px;
+      padding: 10px;
+      font-size: 14px;
     }
 
     button {
       margin-top: 10px;
-      padding: 10px 20px;
+      padding: 12px 20px;
       cursor: pointer;
+      width: 100%;
+      background: #007bff;
+      color: white;
+      border: none;
+      font-size: 16px;
+      border-radius: 6px;
+    }
+
+    button:hover {
+      background: #0056b3;
     }
 
     pre {
       white-space: pre-wrap;
       margin-top: 20px;
-      background: #f4f4f4;
+      background: white;
       padding: 15px;
       border-radius: 8px;
+      min-height: 100px;
     }
   </style>
 </head>
+
 <body>
 
   <h1>Medivance Health AI</h1>
 
-  <p>Describe your symptoms below:</p>
+  <p>Enter your symptoms below:</p>
 
-  <textarea id="symptoms"></textarea>
-
-  <br>
+  <textarea id="symptoms" placeholder="e.g. fever, headache, cough"></textarea>
 
   <button onclick="analyzeSymptoms()">Analyze</button>
 
@@ -48,28 +65,43 @@
   <script>
     async function analyzeSymptoms() {
 
-      const symptoms =
-        document.getElementById("symptoms").value;
+      const symptoms = document.getElementById("symptoms").value;
+      const result = document.getElementById("result");
 
-      const result =
-        document.getElementById("result");
+      // prevent empty input
+      if (!symptoms.trim()) {
+        result.innerText = "Please enter symptoms first.";
+        return;
+      }
 
       result.innerText = "Analyzing...";
 
-      const response = await fetch(
-        "https://medivance-health-ai.onrender.com/analyze",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ symptoms })
+      try {
+        const response = await fetch(
+          "https://medivance-health-ai.onrender.com/analyze",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ symptoms })
+          }
+        );
+
+        // handle backend errors properly
+        if (!response.ok) {
+          const err = await response.json();
+          result.innerText = "Error: " + (err.detail || "Request failed");
+          return;
         }
-      );
 
-      const data = await response.json();
+        const data = await response.json();
 
-      result.innerText = data.result;
+        result.innerText = data.result || "No response from AI";
+
+      } catch (error) {
+        result.innerText = "Network error: " + error.message;
+      }
     }
   </script>
 
